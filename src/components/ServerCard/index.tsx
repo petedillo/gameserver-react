@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import './ServerCard.css';
 
 type Service = {
   name: string;
@@ -24,49 +25,53 @@ const ServerCard = ({ service, API_URL }: ServerCardProps) => {
       if (!response.ok) {
         throw new Error(`Failed to ${action} service`);
       }
-      
-      const data = await response.json();
-      alert(`${action} command sent to ${serviceName}: ${data.message}`);
+      await response.json();
     } catch (error) {
       console.error(`Error ${action}ing service:`, error);
-      alert(`Failed to ${action} ${serviceName}`);
     } finally {
       setLoading(null);
     }
   };
 
   return (
-    <div className="server-item p-4 border rounded mb-4 bg-white shadow-sm hover:shadow-md transition-shadow">
-      <h2 className="text-xl font-bold">{service.name}</h2>
-      <p className="text-gray-600">{service.description}</p>
-      <p className={`status ${service.active_state === 'active' ? 'text-green-500' : 'text-red-500'} font-semibold`}>
-        Status: {service.active_state}
-      </p>
-      <div className="button-group mt-2 space-x-2">
+    <div className={`server-card ${service.active_state === 'active' ? 'server-active' : 'server-inactive'}`}>
+      <div className="server-card-content">
+        <h3 className="server-name">{service.name}</h3>
+        <p className="server-description">{service.description}</p>
+        <div className="server-status">
+          <span className="status-indicator"></span>
+          <span className="status-text">{service.active_state}</span>
+        </div>
+      </div>
+      
+      <div className="server-actions">
         <button
-          className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded transition-colors"
+          className="action-button start-button"
           onClick={() => handleServiceAction(service.name, 'start')}
           disabled={loading !== null}
         >
           Start
         </button>
         <button
-          className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded transition-colors"
+          className="action-button stop-button"
           onClick={() => handleServiceAction(service.name, 'stop')}
           disabled={loading !== null}
         >
           Stop
         </button>
         <button
-          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition-colors"
+          className="action-button restart-button"
           onClick={() => handleServiceAction(service.name, 'restart')}
           disabled={loading !== null}
         >
           Restart
         </button>
       </div>
+      
       {loading && (
-        <p className="text-gray-500 mt-2">{loading}...</p>
+        <div className="loading-indicator">
+          <p>{loading}...</p>
+        </div>
       )}
     </div>
   );

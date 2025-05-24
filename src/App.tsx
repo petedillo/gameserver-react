@@ -1,7 +1,7 @@
 import './App.css'
 import { useEffect, useState } from 'react';
 import ServerList from './components/ServerList';
-import Header from './components/Header/Header.tsx';
+import Header from './components/Header';
 
 function App() {
 type Service = {
