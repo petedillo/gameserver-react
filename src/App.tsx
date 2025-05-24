@@ -50,7 +50,7 @@ const fetchServerStatus = async () => {
 
 useEffect(() => {
   fetchServerStatus();
-  const interval = setInterval(fetchServerStatus, 5000); // Updated to 5 seconds for better UX
+  const interval = setInterval(fetchServerStatus, 5000);
   return () => clearInterval(interval);
 }, []);
 
