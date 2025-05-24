@@ -13,7 +13,7 @@ type ServerListProps = {
 
 const ServerList = ({ services, API_URL }: ServerListProps) => {
   return (
-    <div className="server-list grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <div className="server-list">
       {services.map((service) => (
         <ServerCard 
           key={service.name} 

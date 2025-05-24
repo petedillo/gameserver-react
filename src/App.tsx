@@ -1,6 +1,7 @@
 import './App.css'
 import { useEffect, useState } from 'react';
 import ServerList from './components/ServerList';
+import Header from './components/Header/Header.tsx';
 
 function App() {
 type Service = {
@@ -57,16 +58,12 @@ useEffect(() => {
   return (
     
     <>
-      <header className='bg-grey-900 p-4'>
-        <h1 className="text-2xl font-bold">Game Server</h1>
-        <p className='text-white'>Manage your game servers</p>
-      </header>
-      
-      <main className="p-4">
+      <Header />
+      <main style={{ padding: '1rem' }}>
         {serverStatus ? (
           <ServerList services={serverStatus.services} API_URL={API_URL} />
         ) : (
-          <p>Loading server status...</p>
+          <p style={{ color: '#999' }}>Loading server status...</p>
         )}
       </main>
     </>
