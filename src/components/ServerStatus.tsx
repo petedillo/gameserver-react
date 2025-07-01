@@ -27,12 +27,12 @@ interface ServerStatusData {
 
 export default function ServerStatus() {
   const [lastUpdated, setLastUpdated] = useState<string>('');
+  const [starting, setStarting] = useState(false);
+  const [stopping, setStopping] = useState(false);
+  const [restarting, setRestarting] = useState(false);
   
   // Use the useApi hook to fetch server status
   const { data: serverStatus, error, loading, execute: fetchStatus } = useApi<ServerStatusData>('/api/status');
-  const { execute: startServer, loading: starting } = useApi<unknown, unknown>('/api/start', 'POST');
-  const { execute: stopServer, loading: stopping } = useApi<unknown, unknown>('/api/stop', 'POST');
-  const { execute: restartServer, loading: restarting } = useApi<unknown, unknown>('/api/restart', 'POST');
 
   // Refresh status every 30 seconds
   useEffect(() => {
@@ -53,22 +53,28 @@ export default function ServerStatus() {
     }
   }, [serverStatus]);
 
-  const handleServerAction = async (action: 'start' | 'stop' | 'restart') => {
+  const handleServerAction = async (action: 'start' | 'stop' | 'restart'): Promise<void> => {
     try {
-      if (action === 'start') {
-        await startServer();
-      } else if (action === 'stop') {
-        await stopServer();
-      } else if (action === 'restart') {
-        await restartServer();
+      if (action === 'start') setStarting(true);
+      else if (action === 'stop') setStopping(true);
+      else if (action === 'restart') setRestarting(true);
+      
+      const response = await fetch(`/api/server/${action}`, {
+        method: 'POST',
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to ${action} server`);
       }
       
-      // Refresh status after action completes
-      setTimeout(() => {
-        fetchStatus();
-      }, 2000);
+      // Refresh status after a short delay
+      setTimeout(fetchStatus, 2000);
     } catch (err) {
       console.error(`Failed to ${action} server:`, err);
+    } finally {
+      setStarting(false);
+      setStopping(false);
+      setRestarting(false);
     }
   };
 
@@ -77,7 +83,7 @@ export default function ServerStatus() {
       <GlassCard>
         <h2>Server Status</h2>
         <p>Error loading server status: {error}</p>
-        <Button onClick={fetchStatus}>Retry</Button>
+        <Button onClick={() => fetchStatus()}>Retry</Button>
       </GlassCard>
     );
   }
@@ -98,7 +104,7 @@ export default function ServerStatus() {
         }}>
           {lastUpdated && `Last updated: ${lastUpdated}`}
           <Button 
-            onClick={fetchStatus} 
+            onClick={() => fetchStatus()} 
             disabled={isLoading}
             style={{ marginLeft: '1rem', padding: '0.25rem 0.5rem', fontSize: '0.8rem' }}
             variant="secondary"
@@ -150,7 +156,7 @@ export default function ServerStatus() {
 
       <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
         <Button 
-          onClick={() => handleServerAction('start')} 
+          onClick={() => void handleServerAction('start')} 
           disabled={isLoading || !isOffline}
           variant="success"
         >
@@ -158,7 +164,7 @@ export default function ServerStatus() {
         </Button>
         
         <Button 
-          onClick={() => handleServerAction('stop')} 
+          onClick={() => void handleServerAction('stop')} 
           disabled={isLoading || isOffline}
           variant="danger"
         >
@@ -166,7 +172,7 @@ export default function ServerStatus() {
         </Button>
         
         <Button 
-          onClick={() => handleServerAction('restart')} 
+          onClick={() => void handleServerAction('restart')} 
           disabled={isLoading || isOffline}
           variant="warning"
         >
