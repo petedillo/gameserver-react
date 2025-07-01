@@ -32,7 +32,7 @@ export default function ServerStatus() {
   const [restarting, setRestarting] = useState(false);
   
   // Use the useApi hook to fetch server status
-  const { data: serverStatus, error, loading, execute: fetchStatus } = useApi<ServerStatusData>('/api/status');
+  const { data: serverStatus, error, loading, execute: fetchStatus } = useApi<ServerStatusData>('/api/palworld/status');
 
   // Refresh status every 30 seconds
   useEffect(() => {
@@ -59,7 +59,7 @@ export default function ServerStatus() {
       else if (action === 'stop') setStopping(true);
       else if (action === 'restart') setRestarting(true);
       
-      const response = await fetch(`/api/server/${action}`, {
+      const response = await fetch(`/api/palworld/${action}`, {
         method: 'POST',
       });
       
